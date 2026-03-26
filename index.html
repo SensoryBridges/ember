@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)file:///C:/Users/qxb843/Downloads/StudyH_Wellness_App.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember — Know Your Pattern</title>
+<link href="./index_files/css2" rel="stylesheet">
+<style>
+/* ═══════════════ ROOT ═══════════════ */
+:root {
+  --ink: #1C1917;
+  --ink2: #292524;
+  --cream: #FAFAF7;
+  --warm: #F5F0E8;
+  --sand: #E8DFD0;
+  --ember: #D95F2B;
+  --ember-soft: #F4845F;
+  --ember-glow: rgba(217,95,43,0.12);
+  --moss: #4A7856;
+  --moss-light: #7FAF8C;
+  --sky: #4A7FA5;
+  --lavender: #7B6FA8;
+  --gold: #C49A2A;
+  --border: rgba(28,25,23,0.1);
+  --border2: rgba(28,25,23,0.06);
+  --glass: rgba(250,250,247,0.92);
+  --shadow: 0 4px 24px rgba(28,25,23,0.08);
+  --shadow-lg: 0 12px 48px rgba(28,25,23,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 4px; }
+
+/* ═══════════════ LAYOUT ═══════════════ */
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+@media(max-width: 768px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .bottom-nav { display: flex !important; }
+}
+
+/* ═══════════════ SIDEBAR ═══════════════ */
+.sidebar {
+  background: var(--ink2);
+  padding: 28px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 8px;
+}
+.brand-flame { font-size: 22px; }
+.brand-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+.brand-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: rgba(255,255,255,0.45);
+  font-size: 13px;
+  font-weight: 500;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.75); }
+.nav-item.active { background: rgba(217,95,43,0.18); color: var(--ember-soft); }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ember-soft);
+  margin-left: auto;
+  display: none;
+}
+.nav-item.active .nav-dot { display: block; }
+
+.sidebar-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding: 16px 12px 4px;
+}
+
+.avatar-mini {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar-mini-emoji {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(217,95,43,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.avatar-mini-name { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600; }
+.avatar-mini-stage { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+/* ═══════════════ MAIN ═══════════════ */
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ═══════════════ SCREENS ═══════════════ */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ═══════════════ ONBOARDING ═══════════════ */
+#screen-onboard {
+  min-height: 100vh;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.onboard-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 20% 30%, rgba(217,95,43,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 70%, rgba(74,120,86,0.1) 0%, transparent 60%);
+}
+.onboard-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh;
+  padding: 60px 40px;
+  text-align: center;
+}
+.onboard-flame {
+  font-size: 72px;
+  margin-bottom: 24px;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%,100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(217,95,43,0.4)); }
+  50% { transform: scale(1.04); filter: drop-shadow(0 0 28px rgba(217,95,43,0.7)); }
+}
+.onboard-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+.onboard-title span { color: var(--ember-soft); }
+.onboard-sub {
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  color: rgba(255,255,255,0.55);
+  max-width: 460px;
+  line-height: 1.65;
+  margin-bottom: 40px;
+  font-style: italic;
+}
+
+/* ICP pain points visual */
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-width: 520px;
+  margin-bottom: 44px;
+}
+.pain-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.pain-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 4px;
+}
+.pain-text { font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.4; }
+.pain-text strong { color: var(--ember-soft); font-style: normal; }
+
+.start-btn {
+  background: var(--ember);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 44px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.2s;
+  box-shadow: 0 6px 28px rgba(217,95,43,0.35);
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(217,95,43,0.45); }
+
+.consent-note {
+  margin-top: 16px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  max-width: 380px;
+  line-height: 1.5;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ═══════════════ AVATAR BUILDER ═══════════════ */
+#screen-avatar {
+  background: var(--warm);
+  min-height: 100vh;
+  padding: 48px 40px;
+}
+.builder-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.builder-sub {
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  color: rgba(28,25,23,0.5);
+  font-style: italic;
+  margin-bottom: 36px;
+}
+
+.builder-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+}
+@media(max-width:900px) { .builder-grid { grid-template-columns: 1fr; } }
+
+.avatar-preview {
+  background: var(--ink2);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  position: sticky;
+  top: 24px;
+  height: fit-content;
+}
+.avatar-display {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56px;
+  transition: all 0.4s ease;
+  animation: breathe-slow 5s ease-in-out infinite;
+}
+@keyframes breathe-slow {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+.avatar-name-display {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.avatar-stage-display {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.xp-track {
+  background: rgba(255,255,255,0.07);
+  border-radius: 50px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.xp-fill { height: 100%; border-radius: 50px; background: linear-gradient(90deg, var(--ember), var(--ember-soft)); width: 5%; transition: width 0.8s ease; }
+.xp-label { font-size: 10px; color: rgba(255,255,255,0.3); font-family: 'DM Mono', monospace; }
+
+.builder-form { display: flex; flex-direction: column; gap: 20px; }
+
+.form-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+}
+.form-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+.form-section-sub { font-size: 12px; color: rgba(28,25,23,0.45); margin-bottom: 16px; line-height: 1.4; }
+
+.text-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.text-input:focus { border-color: var(--ember); }
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.emoji-btn {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: var(--warm);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.emoji-btn:hover { transform: scale(1.1); background: var(--sand); }
+.emoji-btn.selected { border-color: var(--ember); background: var(--ember-glow); }
+
+.color-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-swatch {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.selected { border-color: var(--ink); box-shadow: 0 0 0 2px #fff; }
+
+.strength-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.strength-pill {
+  padding: 7px 14px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--cream);
+  color: var(--ink);
+}
+.strength-pill:hover { border-color: var(--ember-soft); }
+.strength-pill.selected { background: var(--ember); border-color: var(--ember); color: #fff; }
+
+.goal-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.goal-card {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.18s;
+  background: var(--cream);
+}
+.goal-card:hover { border-color: var(--ember-soft); }
+.goal-card.selected { border-color: var(--ember); background: var(--ember-glow); }
+.goal-emoji { font-size: 20px; margin-bottom: 6px; }
+.goal-name { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.goal-desc { font-size: 11px; color: rgba(28,25,23,0.5); line-height: 1.35; }
+
+.build-btn {
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 32px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+.build-btn:hover { background: var(--ember); transform: translateY(-1px); }
+
+/* ═══════════════ DASHBOARD ═══════════════ */
+#screen-dashboard {
+  background: var(--cream);
+  padding: 0;
+}
+.dash-hero {
+  background: var(--ink2);
+  padding: 40px 36px 50px;
+  position: relative;
+  overflow: hidden;
+}
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 30px;
+  background: var(--cream);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.dash-hero-inner {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 24px;
+}
+.dash-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  flex-shrink: 0;
+  animation: breathe-slow 5s ease-in-out infinite;
+  border: 2.5px solid rgba(255,255,255,0.1);
+}
+.dash-greeting { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; font-family: 'DM Mono', monospace; }
+.dash-name { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.3px; margin-bottom: 4px; }
+.dash-stage-row { display: flex; align-items: center; gap: 10px; }
+.dash-stage-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(217,95,43,0.2);
+  color: var(--ember-soft);
+  letter-spacing: 1px;
+}
+.dash-xp { font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'DM Mono', monospace; }
+.dash-xp-bar { margin-top: 8px; background: rgba(255,255,255,0.08); border-radius: 50px; height: 5px; width: 200px; overflow: hidden; }
+.dash-xp-fill { height: 100%; background: linear-gradient(90deg, var(--ember), var(--ember-soft)); border-radius: 50px; transition: width 1s ease; }
+
+.dash-body { padding: 28px 36px 60px; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+@media(max-width:900px) { .dash-grid { grid-template-columns: 1fr; } }
+
+.dash-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dash-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.dash-card-icon { font-size: 22px; margin-bottom: 8px; }
+.dash-card-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.dash-card-sub { font-size: 12px; color: rgba(28,25,23,0.45); line-height: 1.4; }
+.dash-card-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--ink); margin: 8px 0 2px; }
+.dash-card-trend { font-size: 11px; }
+.trend-up { color: var(--moss); }
+.trend-down { color: var(--ember); }
+
+.burnout-meter {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+  border: 1px solid var(--border2);
+}
+.meter-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.meter-sub { font-size: 11px; color: rgba(28,25,23,0.45); margin-bottom: 14px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+.meter-bar-wrap { background: var(--sand); border-radius: 50px; height: 12px; overflow: hidden; position: relative; margin-bottom: 8px; }
+.meter-bar {
+  height: 100%;
+  border-radius: 50px;
+  transition: width 1.2s ease;
+  position: relative;
+}
+.meter-bar::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: 1px; bottom: 1px;
+  width: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+}
+.meter-green { background: linear-gradient(90deg, var(--moss), var(--moss-light)); }
+.meter-amber { background: linear-gradient(90deg, var(--gold), #E8B84B); }
+.meter-red { background: linear-gradient(90deg, var(--ember), var(--ember-soft)); }
+.meter-labels { display: flex; justify-content: space-between; font-size: 10px; color: rgba(28,25,23,0.4); font-family: 'DM Mono', monospace; }
+
+.masking-tracker {
+  background: linear-gradient(135deg, #2C1A3A, #1C1917);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+.masking-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.masking-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+.masking-scale { display: flex; gap: 6px; }
+.masking-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+  line-height: 1.3;
+}
+.masking-btn:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
+.masking-btn.selected { background: rgba(123,111,168,0.25); border-color: var(--lavender); color: var(--lavender); }
+.masking-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+/* ═══════════════ CHECK-IN SCREEN ═══════════════ */
+#screen-checkin {
+  background: var(--warm);
+  padding: 40px 36px 80px;
+}
+.checkin-title {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+.checkin-date { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(28,25,23,0.4); margin-bottom: 32px; letter-spacing: 1px; text-transform: uppercase; }
+
+.energy-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+}
+.energy-q { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.energy-scale { display: flex; gap: 8px; }
+.energy-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--cream);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+}
+.energy-btn:hover { border-color: var(--ember-soft); transform: translateY(-2px); }
+.energy-btn.selected { border-color: var(--ember); background: var(--ember-glow); }
+.energy-emoji { font-size: 22px; display: block; margin-bottom: 3px; }
+.energy-label { font-size: 9px; color: rgba(28,25,23,0.5); font-family: 'DM Mono', monospace; line-height: 1.3; }
+
+.context-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+}
+.context-q { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+.context-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.context-tag {
+  padding: 7px 14px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--cream);
+  transition: all 0.15s;
+}
+.context-tag:hover { border-color: var(--ember-soft); }
+.context-tag.selected { background: var(--ember); border-color: var(--ember); color: #fff; }
+
+.slider-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+}
+.slider-q { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.custom-slider {
+  -webkit-appearance: none;
+  width: 100%; height: 6px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 8px;
+  background: linear-gradient(to right, var(--ember) 65%, var(--sand) 65%);
+}
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--ember);
+  box-shadow: 0 2px 8px rgba(217,95,43,0.25);
+  cursor: pointer;
+}
+.slider-labels { display: flex; justify-content: space-between; font-size: 10px; color: rgba(28,25,23,0.4); font-family: 'DM Mono', monospace; }
+
+.insights-callout {
+  background: linear-gradient(135deg, rgba(74,120,86,0.08), rgba(74,120,86,0.04));
+  border: 1.5px solid rgba(74,120,86,0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--moss);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.insights-callout strong { font-weight: 700; }
+
+.submit-checkin {
+  background: var(--ember);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 36px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(217,95,43,0.3);
+}
+.submit-checkin:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(217,95,43,0.4); }
+
+/* ═══════════════ PROGRESS SCREEN ═══════════════ */
+#screen-progress {
+  background: var(--cream);
+  padding: 40px 36px 80px;
+}
+.progress-title { font-size: 28px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 4px; }
+.progress-sub { font-family: 'Lora', serif; font-size: 14px; color: rgba(28,25,23,0.5); font-style: italic; margin-bottom: 32px; }
+
+.chart-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(28,25,23,0.04);
+  border: 1px solid var(--border2);
+}
+.chart-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.chart-sub { font-size: 11px; color: rgba(28,25,23,0.4); margin-bottom: 18px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  min-height: 4px;
+  transition: height 1s ease;
+}
+.bar-engagement { background: linear-gradient(180deg, var(--ember-soft), var(--ember)); }
+.bar-wellbeing { background: linear-gradient(180deg, var(--moss-light), var(--moss)); }
+.bar-sleep { background: linear-gradient(180deg, #A78BFA, #7C3AED); }
+.bar-col-label { font-size: 9px; color: rgba(28,25,23,0.4); font-family: 'DM Mono', monospace; }
+
+.legend-row { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(28,25,23,0.6); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.correlation-card {
+  background: linear-gradient(135deg, var(--ink2), var(--ink));
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+.corr-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.corr-stat { font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800; color: var(--ember-soft); margin-bottom: 4px; }
+.corr-label { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+.corr-insight { margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; }
+
+.wellbeing-bars { display: flex; flex-direction: column; gap: 12px; }
+.wb-row { display: flex; align-items: center; gap: 12px; }
+.wb-icon { font-size: 16px; width: 24px; text-align: center; }
+.wb-label { font-size: 12px; width: 80px; color: rgba(28,25,23,0.6); }
+.wb-bar-track { flex: 1; height: 8px; background: var(--sand); border-radius: 50px; overflow: hidden; position: relative; }
+.wb-bar-before { position: absolute; height: 100%; background: rgba(28,25,23,0.15); border-radius: 50px; }
+.wb-bar-after { position: absolute; height: 100%; background: var(--moss); border-radius: 50px; transition: width 1.5s ease 0.3s; }
+.wb-score { font-size: 12px; font-weight: 700; color: var(--moss); width: 32px; text-align: right; }
+
+/* ═══════════════ HEALTH DATA SCREEN ═══════════════ */
+#screen-health {
+  background: var(--warm);
+  padding: 40px 36px 80px;
+}
+.health-title { font-size: 28px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 4px; }
+.health-sub { font-family: 'Lora', serif; font-size: 14px; color: rgba(28,25,23,0.5); font-style: italic; margin-bottom: 32px; }
+
+.device-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+@media(max-width:800px) { .device-grid { grid-template-columns: repeat(2, 1fr); } }
+.device-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(28,25,23,0.04);
+}
+.device-card:hover { transform: translateY(-2px); border-color: var(--border); }
+.device-card.selected { border-color: var(--ember); }
+.device-emoji { font-size: 28px; margin-bottom: 8px; }
+.device-name { font-size: 12px; font-weight: 700; color: var(--ink); }
+.device-brand { font-size: 10px; color: rgba(28,25,23,0.4); font-family: 'DM Mono', monospace; }
+
+.health-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.health-input-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(28,25,23,0.04);
+}
+.h-icon { font-size: 20px; margin-bottom: 8px; }
+.h-label { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.h-sublabel { font-size: 10px; color: rgba(28,25,23,0.4); font-family: 'DM Mono', monospace; margin-bottom: 10px; }
+.h-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.h-input:focus { border-color: var(--ember); }
+
+.privacy-box {
+  background: rgba(74,120,86,0.07);
+  border: 1.5px solid rgba(74,120,86,0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--moss);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.privacy-box strong { font-weight: 700; display: block; margin-bottom: 2px; }
+
+.sync-btn {
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 13px 30px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sync-btn:hover { background: var(--moss); transform: translateY(-1px); }
+
+/* ═══════════════ DATA STATUS ═══════════════ */
+.airtable-status {
+  background: rgba(74,120,86,0.07);
+  border: 1.5px solid rgba(74,120,86,0.18);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--moss);
+  font-family: 'DM Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.airtable-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--moss); flex-shrink: 0; animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.irb-notice {
+  background: rgba(123,111,168,0.07);
+  border: 1px solid rgba(123,111,168,0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 10px;
+  color: var(--lavender);
+  font-family: 'DM Mono', monospace;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* ═══════════════ XP TOAST ═══════════════ */
+.xp-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 50px;
+  padding: 12px 22px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+}
+.xp-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════ BOTTOM NAV (mobile) ═══════════════ */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(28,25,23,0.95);
+  backdrop-filter: blur(12px);
+  padding: 10px 16px 24px;
+  gap: 0;
+  z-index: 100;
+}
+.bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.18s;
+}
+.bn-item.active { background: rgba(217,95,43,0.12); }
+.bn-icon { font-size: 20px; }
+.bn-label { font-size: 9px; color: rgba(255,255,255,0.4); font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+.bn-item.active .bn-label { color: var(--ember-soft); }
+
+/* ═══════════════ UTILS ═══════════════ */
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.section-head-title { font-size: 16px; font-weight: 700; }
+.section-head-link { font-size: 11px; color: var(--ember); cursor: pointer; font-family: 'DM Mono', monospace; }
+
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+.tag-ember { background: var(--ember-glow); color: var(--ember); }
+.tag-moss { background: rgba(74,120,86,0.1); color: var(--moss); }
+.tag-sky { background: rgba(74,127,165,0.1); color: var(--sky); }
+.tag-lav { background: rgba(123,111,168,0.1); color: var(--lavender); }
+.tag-gold { background: rgba(196,154,42,0.1); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ XP TOAST ═══════════ -->
+<div class="xp-toast" id="xp-toast">⌚ +50 XP — Health Data Synced</div>
+
+<div class="app-shell">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-flame">🔥</div>
+      <div>
+        <div class="brand-name">Ember</div>
+        <div class="brand-tag">Study H · IRB #2025-0084</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Main</div>
+    <div class="nav-item active" onclick="showScreen(&#39;dashboard&#39;)" id="nav-dashboard">
+      <span class="nav-icon">🏠</span> Dashboard
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showScreen(&#39;checkin&#39;)" id="nav-checkin">
+      <span class="nav-icon">✍️</span> Daily Check-In
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showScreen(&#39;progress&#39;)" id="nav-progress">
+      <span class="nav-icon">📈</span> My Patterns
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="showScreen(&#39;health&#39;)" id="nav-health">
+      <span class="nav-icon">⌚</span> Health Data
+      <div class="nav-dot"></div>
+    </div>
+
+    <div class="sidebar-section-label">Avatar</div>
+    <div class="nav-item" onclick="showScreen(&#39;avatar&#39;)" id="nav-avatar">
+      <span class="nav-icon">🌱</span> Build Avatar
+      <div class="nav-dot"></div>
+    </div>
+
+    <!-- Avatar mini -->
+    <div class="avatar-mini">
+      <div class="avatar-mini-emoji" id="sidebar-avatar-emoji">🌱</div>
+      <div>
+        <div class="avatar-mini-name" id="sidebar-avatar-name">Explorer's Avatar</div>
+        <div class="avatar-mini-stage" id="sidebar-avatar-stage">🌿 Sprout · 225 XP</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <main class="main">
+
+    <!-- ── ONBOARDING ── -->
+    <div class="screen" id="screen-onboard">
+      <div class="onboard-bg"></div>
+      <div class="onboard-content">
+        <div class="onboard-flame">🔥</div>
+        <div class="onboard-title">Know Your<br><span>Pattern.</span></div>
+        <div class="onboard-sub">"You're not broken. You're burning out in a world that wasn't built for how your brain works."</div>
+
+        <div class="pain-grid">
+          <div class="pain-card">
+            <div class="pain-label">Top pain #1</div>
+            <div class="pain-text"><strong>Masking exhaustion</strong> — performing "fine" until the crash</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-label">Top pain #2</div>
+            <div class="pain-text"><strong>Boom-bust cycles</strong> — hyperfocus then collapse, no warning</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-label">Top pain #3</div>
+            <div class="pain-text"><strong>Privacy fear</strong> — every app sells your most vulnerable data</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-label">Top pain #4</div>
+            <div class="pain-text"><strong>Shame spiral</strong> — apps punish missed days, making it worse</div>
+          </div>
+        </div>
+
+        <button class="start-btn" onclick="showScreen(&#39;avatar&#39;)">Build Your Avatar →</button>
+        <div class="consent-note">🔒 IRB Protocol #2025-0084 · Data de-identified · You own your data · No ads · No data selling · FDA Wellness Device — not a medical tool</div>
+      </div>
+    </div>
+
+    <!-- ── AVATAR BUILDER ── -->
+    <div class="screen" id="screen-avatar">
+      <div style="padding: 40px 40px 0;">
+        <div class="builder-title">Build Your Avatar</div>
+        <div class="builder-sub">Your avatar reflects your patterns — it grows with you, never shrinks.</div>
+      </div>
+      <div style="padding: 0 40px 80px;">
+        <div class="builder-grid">
+
+          <!-- Preview -->
+          <div class="avatar-preview">
+            <div class="avatar-display" id="avatar-display" style="background: radial-gradient(circle, rgba(217,95,43,0.3), rgba(28,25,23,0.8));">
+              <span id="avatar-emoji-display">🌱</span>
+            </div>
+            <div class="avatar-name-display" id="avatar-name-live">Your Name</div>
+            <div class="avatar-stage-display">🌱 Seed Stage</div>
+            <div class="xp-track"><div class="xp-fill" id="builder-xp" style="width: 5%;"></div></div>
+            <div class="xp-label" style="margin-top:4px;">0 / 200 XP to Sprout</div>
+
+            <div style="margin-top:20px; font-size:11px; color:rgba(255,255,255,0.3); line-height:1.6; font-family:&#39;DM Mono&#39;,monospace; text-align:left;">
+              Your avatar changes based on your patterns — more engaged weeks reveal new colors, expressions, and growth stages. XP never decreases.
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="builder-form">
+
+            <!-- Name -->
+            <div class="form-section">
+              <div class="form-section-title">What should we call you?</div>
+              <div class="form-section-sub">This stays on your device only. Anonymized study ID used for research.</div>
+              <input type="text" class="text-input" placeholder="Your first name or nickname" id="user-name-input" oninput="updateAvatarName(this.value)">
+            </div>
+
+            <!-- Emoji -->
+            <div class="form-section">
+              <div class="form-section-title">Choose your avatar seed</div>
+              <div class="form-section-sub">This is the starting form. It evolves as your engagement grows across 8 weeks.</div>
+              <div class="emoji-grid">
+                <div class="emoji-btn selected" onclick="selectEmoji(this, &#39;🌱&#39;)">🌱</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🌊&#39;)">🌊</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🌙&#39;)">🌙</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;⚡&#39;)">⚡</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🌀&#39;)">🌀</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🔥&#39;)">🔥</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🌸&#39;)">🌸</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🦋&#39;)">🦋</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🌿&#39;)">🌿</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;⭐&#39;)">⭐</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🍄&#39;)">🍄</div>
+                <div class="emoji-btn" onclick="selectEmoji(this, &#39;🌺&#39;)">🌺</div>
+              </div>
+            </div>
+
+            <!-- Color -->
+            <div class="form-section">
+              <div class="form-section-title">Avatar aura color</div>
+              <div class="form-section-sub">The glow that surrounds your avatar — reflects your energy.</div>
+              <div class="color-grid">
+                <div class="color-swatch selected" style="background:#D95F2B" onclick="selectColor(this, &#39;rgba(217,95,43,0.3), rgba(28,25,23,0.8)&#39;)"></div>
+                <div class="color-swatch" style="background:#4A7856" onclick="selectColor(this, &#39;rgba(74,120,86,0.3), rgba(28,25,23,0.8)&#39;)"></div>
+                <div class="color-swatch" style="background:#4A7FA5" onclick="selectColor(this, &#39;rgba(74,127,165,0.3), rgba(28,25,23,0.8)&#39;)"></div>
+                <div class="color-swatch" style="background:#7B6FA8" onclick="selectColor(this, &#39;rgba(123,111,168,0.3), rgba(28,25,23,0.8)&#39;)"></div>
+                <div class="color-swatch" style="background:#C49A2A" onclick="selectColor(this, &#39;rgba(196,154,42,0.3), rgba(28,25,23,0.8)&#39;)"></div>
+                <div class="color-swatch" style="background:#D95F88" onclick="selectColor(this, &#39;rgba(217,95,136,0.3), rgba(28,25,23,0.8)&#39;)"></div>
+              </div>
+            </div>
+
+            <!-- Strengths -->
+            <div class="form-section">
+              <div class="form-section-title">Your CliftonStrengths top 5</div>
+              <div class="form-section-sub">Select from your Gallup report. Shapes which features are recommended for you.</div>
+              <div class="strength-pills">
+                <div class="strength-pill selected" onclick="togglePill(this)">💡 Ideation</div>
+                <div class="strength-pill selected" onclick="togglePill(this)">🤝 Empathy</div>
+                <div class="strength-pill" onclick="togglePill(this)">🗺️ Strategic</div>
+                <div class="strength-pill" onclick="togglePill(this)">🏆 Achiever</div>
+                <div class="strength-pill selected" onclick="togglePill(this)">📚 Learner</div>
+                <div class="strength-pill" onclick="togglePill(this)">🌟 Individualization</div>
+                <div class="strength-pill" onclick="togglePill(this)">🎯 Focus</div>
+                <div class="strength-pill selected" onclick="togglePill(this)">🔗 Connectedness</div>
+                <div class="strength-pill selected" onclick="togglePill(this)">💬 Communication</div>
+                <div class="strength-pill" onclick="togglePill(this)">🛠️ Developer</div>
+                <div class="strength-pill" onclick="togglePill(this)">🧭 Deliberative</div>
+                <div class="strength-pill" onclick="togglePill(this)">⚙️ Restorative</div>
+              </div>
+            </div>
+
+            <!-- Personal Goal -->
+            <div class="form-section">
+              <div class="form-section-title">What do you want to understand about yourself?</div>
+              <div class="form-section-sub">Choose a personal awareness goal — not a medical target, just honest curiosity.</div>
+              <div class="goal-cards">
+                <div class="goal-card selected" onclick="selectGoal(this)">
+                  <div class="goal-emoji">🔋</div>
+                  <div class="goal-name">Energy Patterns</div>
+                  <div class="goal-desc">Understand when I have the most and least capacity</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal(this)">
+                  <div class="goal-emoji">🎭</div>
+                  <div class="goal-name">Masking Load</div>
+                  <div class="goal-desc">Notice how much I'm performing vs. being myself</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal(this)">
+                  <div class="goal-emoji">🌊</div>
+                  <div class="goal-name">Boom-Bust Rhythm</div>
+                  <div class="goal-desc">Spot the crash before it happens</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal(this)">
+                  <div class="goal-emoji">🤝</div>
+                  <div class="goal-name">Social Capacity</div>
+                  <div class="goal-desc">Know when I can connect vs. when I need to recover</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal(this)">
+                  <div class="goal-emoji">🧠</div>
+                  <div class="goal-name">Focus Windows</div>
+                  <div class="goal-desc">Find my natural rhythm for deep work</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal(this)">
+                  <div class="goal-emoji">💤</div>
+                  <div class="goal-name">Recovery Needs</div>
+                  <div class="goal-desc">Learn what actually restores me</div>
+                </div>
+              </div>
+            </div>
+
+            <button class="build-btn" onclick="finishAvatar()">Activate My Avatar → Start Week 1</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="screen active" id="screen-dashboard">
+      <div class="dash-hero">
+        <div class="dash-hero-inner">
+          <div class="dash-avatar" id="dash-avatar-emoji" style="background: radial-gradient(circle, rgba(217,95,43,0.3), rgba(28,25,23,0.8));">🌱</div>
+          <div>
+            <div class="dash-greeting">Week 3 · Day 4 · Tuesday</div>
+            <div class="dash-name" id="dash-user-name">Good morning, Explorer 🔥</div>
+            <div class="dash-stage-row">
+              <div class="dash-stage-badge" id="dash-stage-badge">🌿 Sprout</div>
+              <div class="dash-xp" id="dash-xp-text">225 XP · 🌿 Sprout</div>
+            </div>
+            <div class="dash-xp-bar"><div class="dash-xp-fill" id="dash-xp-fill" style="width: 5%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-body">
+
+        <!-- Burnout meter — powered by check-in data -->
+        <div class="burnout-meter">
+          <div class="section-head">
+            <div>
+              <div class="meter-title">🔋 Capacity Meter</div>
+              <div class="meter-sub">Based on your check-ins, sleep, and masking load this week</div>
+            </div>
+          </div>
+          <div class="meter-bar-wrap">
+            <div class="meter-bar meter-amber" id="capacity-bar" style="width: 62%"></div>
+          </div>
+          <div class="meter-labels">
+            <span>Depleted</span><span>Low</span><span>Moderate ← you</span><span>Full</span>
+          </div>
+          <div style="margin-top:10px; font-size:12px; color:rgba(28,25,23,0.6); line-height:1.5;">
+            ⚡ <strong>Pattern detected:</strong> Your capacity drops on days following 3+ social interactions. Tomorrow is a meeting-heavy day — you may want to protect morning time.
+          </div>
+        </div>
+
+        <!-- Masking tracker — #1 community pain point -->
+        <div class="masking-tracker">
+          <div class="masking-title">🎭 Masking Load Today</div>
+          <div class="masking-sub">How much of "you" are you hiding right now?</div>
+          <div class="masking-scale">
+            <div class="masking-btn" onclick="selectMasking(this)">
+              <span class="masking-icon">😌</span>Unmasked
+            </div>
+            <div class="masking-btn selected" onclick="selectMasking(this)">
+              <span class="masking-icon">🙂</span>Little bit
+            </div>
+            <div class="masking-btn" onclick="selectMasking(this)">
+              <span class="masking-icon">😐</span>Moderate
+            </div>
+            <div class="masking-btn" onclick="selectMasking(this)">
+              <span class="masking-icon">😰</span>Heavy
+            </div>
+            <div class="masking-btn" onclick="selectMasking(this)">
+              <span class="masking-icon">🫥</span>Invisible
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="dash-grid">
+          <div class="dash-card" onclick="showScreen(&#39;checkin&#39;)">
+            <div class="dash-card-icon">✍️</div>
+            <div class="dash-card-title">Today's Check-In</div>
+            <div class="dash-card-sub">Afternoon reflection pending</div>
+            <div class="dash-card-value">1/2</div>
+            <div class="dash-card-trend trend-up">↑ +25 XP available</div>
+          </div>
+          <div class="dash-card" onclick="showScreen(&#39;health&#39;)">
+            <div class="dash-card-icon">❤️</div>
+            <div class="dash-card-title">Resting Heart Rate</div>
+            <div class="dash-card-sub">From your wearable · This week avg</div>
+            <div class="dash-card-value">64<span style="font-size:14px;color:rgba(28,25,23,0.4)"> bpm</span></div>
+            <div class="dash-card-trend trend-up">↓ 3 from last week</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-icon">😴</div>
+            <div class="dash-card-title">Sleep Avg</div>
+            <div class="dash-card-sub">Self-reported · This week</div>
+            <div class="dash-card-value">6.8<span style="font-size:14px;color:rgba(28,25,23,0.4)"> hrs</span></div>
+            <div class="dash-card-trend trend-down">↓ 0.4 from last week</div>
+          </div>
+          <div class="dash-card" onclick="showScreen(&#39;progress&#39;)">
+            <div class="dash-card-icon">📊</div>
+            <div class="dash-card-title">Wellbeing Score</div>
+            <div class="dash-card-sub">Gallup Wellbeing-5 · Week 3</div>
+            <div class="dash-card-value">6.4<span style="font-size:14px;color:rgba(28,25,23,0.4)">/10</span></div>
+            <div class="dash-card-trend trend-up">↑ +0.8 from baseline</div>
+          </div>
+        </div>
+
+        <!-- Boom-bust early warning — community pain #2 -->
+        <div class="chart-card">
+          <div class="section-head">
+            <div>
+              <div class="chart-title">⚡ Boom-Bust Early Warning</div>
+              <div class="chart-sub">Pattern detected from 3 weeks of check-ins + biometrics</div>
+            </div>
+          </div>
+          <div style="background:rgba(217,95,43,0.06);border:1.5px solid rgba(217,95,43,0.15);border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6;color:var(--ink);">
+            🔥 <strong>Hyperfocus signature detected.</strong> Your check-ins show 4 consecutive high-energy mornings. Historically your pattern shows a crash 2–3 days after sequences like this. Consider scheduling lighter tasks Thursday–Friday. <em>This is pattern awareness, not a prediction.</em>
+          </div>
+          <div class="tag-row">
+            <span class="tag tag-ember">High energy streak</span>
+            <span class="tag tag-moss">Sleep trending down</span>
+            <span class="tag tag-lav">Masking load rising</span>
+          </div>
+        </div>
+
+        <!-- Study progress -->
+        <div class="chart-card">
+          <div class="chart-title">📅 Study H Progress</div>
+          <div class="chart-sub">IRB #2025-0084 · 8-Week Journey</div>
+          <div style="display:flex;gap:4px;margin-bottom:10px;">
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--ember);"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--ember);"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--ember-soft);opacity:0.6;"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--sand);"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--sand);"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--sand);"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--sand);"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:var(--sand);"></div>
+          </div>
+          <div style="font-size:11px;color:rgba(28,25,23,0.5);display:flex;justify-content:space-between;font-family:&#39;DM Mono&#39;,monospace;">
+            <span>Week 1</span><span>Week 3 ← now</span><span>Week 8</span>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:rgba(28,25,23,0.6);">18 check-ins completed · 8 biometric exports · 75 XP total</div>
+        </div>
+
+      </div><!-- /dash-body -->
+    </div><!-- /dashboard -->
+
+    <!-- ── DAILY CHECK-IN ── -->
+    <div class="screen" id="screen-checkin">
+      <div class="checkin-title" style="padding:40px 36px 0;">Afternoon Check-In</div>
+      <div class="checkin-date" style="padding:4px 36px 0;">Week 3 · Tuesday · 2:14pm</div>
+      <div style="padding:20px 36px 80px; display:flex; flex-direction:column; gap:0;">
+
+        <!-- Energy -->
+        <div class="energy-section" style="margin-bottom:16px;">
+          <div class="energy-q">How present and ready do you feel right now?</div>
+          <div class="energy-scale">
+            <div class="energy-btn" onclick="selectEnergy(this)">
+              <span class="energy-emoji">🌫️</span>
+              <span class="energy-label">Foggy</span>
+            </div>
+            <div class="energy-btn" onclick="selectEnergy(this)">
+              <span class="energy-emoji">🌤️</span>
+              <span class="energy-label">Low</span>
+            </div>
+            <div class="energy-btn selected" onclick="selectEnergy(this)">
+              <span class="energy-emoji">☀️</span>
+              <span class="energy-label">Neutral</span>
+            </div>
+            <div class="energy-btn" onclick="selectEnergy(this)">
+              <span class="energy-emoji">🌟</span>
+              <span class="energy-label">Good</span>
+            </div>
+            <div class="energy-btn" onclick="selectEnergy(this)">
+              <span class="energy-emoji">⚡</span>
+              <span class="energy-label">Energized</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Masking today -->
+        <div class="context-section" style="margin-bottom:16px;">
+          <div class="context-q">🎭 How much are you masking right now?</div>
+          <div class="context-tags">
+            <div class="context-tag" onclick="toggleTag(this)">😌 Fully myself</div>
+            <div class="context-tag selected" onclick="toggleTag(this)">🙂 Slightly performing</div>
+            <div class="context-tag" onclick="toggleTag(this)">😐 Code-switching</div>
+            <div class="context-tag" onclick="toggleTag(this)">😰 Heavy masking</div>
+            <div class="context-tag" onclick="toggleTag(this)">🫥 Completely invisible</div>
+          </div>
+        </div>
+
+        <!-- Context -->
+        <div class="context-section" style="margin-bottom:16px;">
+          <div class="context-q">What's in your environment right now?</div>
+          <div class="context-tags">
+            <div class="context-tag selected" onclick="toggleTag(this)">🏫 Work / Class</div>
+            <div class="context-tag" onclick="toggleTag(this)">🏠 Home alone</div>
+            <div class="context-tag" onclick="toggleTag(this)">👥 Social situation</div>
+            <div class="context-tag" onclick="toggleTag(this)">🔇 Sensory overload</div>
+            <div class="context-tag" onclick="toggleTag(this)">🧠 Hyperfocusing</div>
+            <div class="context-tag" onclick="toggleTag(this)">💤 Crashed / shutdown</div>
+            <div class="context-tag" onclick="toggleTag(this)">😴 Tired but pushing</div>
+            <div class="context-tag" onclick="toggleTag(this)">✅ In the zone</div>
+          </div>
+        </div>
+
+        <!-- Task readiness slider -->
+        <div class="slider-section" style="margin-bottom:16px;">
+          <div class="slider-q">How ready do you feel to engage with what's in front of you?</div>
+          <input type="range" class="custom-slider" id="readiness-slider" min="0" max="10" value="6" oninput="updateReadinessSlider(this)" style="background: linear-gradient(to right, var(--ember) 40%, var(--sand) 40%);">
+          <div class="slider-labels"><span>Not ready at all</span><span>Fully ready</span></div>
+        </div>
+
+        <!-- Personalized insight based on strengths -->
+        <div class="insights-callout">
+          💡 <strong>Ideation + Empathy pathway note:</strong> You tend to check in highest on days when you had unstructured creative time in the morning. Tomorrow: try protecting the first 30 min for something open-ended before structured tasks.
+        </div>
+
+        <button class="submit-checkin" onclick="submitCheckin()">Record Pattern · +30 XP 🔥</button>
+      </div>
+    </div>
+
+    <!-- ── PROGRESS / PATTERNS ── -->
+    <div class="screen" id="screen-progress">
+      <div style="padding:40px 36px 0;">
+        <div class="progress-title">My Patterns</div>
+        <div class="progress-sub">What your 3 weeks of data are starting to reveal about you</div>
+      </div>
+      <div style="padding:20px 36px 80px; display:flex; flex-direction:column; gap:0;">
+
+        <!-- Strengths pathway -->
+        <div style="background:var(--ink2);border-radius:16px;padding:22px;margin-bottom:16px;color:#fff;">
+          <div style="font-size:12px;font-family:&#39;DM Mono&#39;,monospace;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Your Feature Pathway</div>
+          <div style="font-size:18px;font-weight:800;margin-bottom:6px;">Creative Connector</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+            <span style="background:rgba(217,95,43,0.2);border:1px solid rgba(217,95,43,0.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ember-soft);">💡 Ideation</span>
+            <span style="background:rgba(217,95,43,0.2);border:1px solid rgba(217,95,43,0.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ember-soft);">🤝 Empathy</span>
+            <span style="background:rgba(217,95,43,0.2);border:1px solid rgba(217,95,43,0.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ember-soft);">📚 Learner</span>
+            <span style="background:rgba(217,95,43,0.2);border:1px solid rgba(217,95,43,0.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--ember-soft);">🔗 Connectedness</span>
+          </div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">Pathway match score: <strong style="color:var(--ember-soft);">92%</strong> — features emphasizing creative reflection, connection, and personal exploration are recommended for your profile.</div>
+        </div>
+
+        <!-- Engagement vs wellbeing chart -->
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div class="chart-title">Engagement vs. Self-Reported Wellbeing</div>
+          <div class="chart-sub">Weekly app sessions aligned with Gallup Wellbeing-5 scores</div>
+          <div class="bar-chart">
+            <div class="bar-col">
+              <div class="bar-fill bar-engagement" style="height:30%"></div>
+              <div class="bar-fill bar-wellbeing" style="height:40%;margin-top:4px;"></div>
+              <div class="bar-col-label">W1</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-fill bar-engagement" style="height:50%"></div>
+              <div class="bar-fill bar-wellbeing" style="height:52%;margin-top:4px;"></div>
+              <div class="bar-col-label">W2</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-fill bar-engagement" style="height:68%"></div>
+              <div class="bar-fill bar-wellbeing" style="height:64%;margin-top:4px;"></div>
+              <div class="bar-col-label">W3</div>
+            </div>
+            <div class="bar-col" style="opacity:0.3;">
+              <div class="bar-fill" style="height:6px;background:var(--sand);"></div>
+              <div class="bar-fill" style="height:6px;background:var(--sand);margin-top:4px;"></div>
+              <div class="bar-col-label">W4</div>
+            </div>
+            <div class="bar-col" style="opacity:0.3;">
+              <div class="bar-fill" style="height:6px;background:var(--sand);"></div>
+              <div class="bar-fill" style="height:6px;background:var(--sand);margin-top:4px;"></div>
+              <div class="bar-col-label">W5</div>
+            </div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--ember)"></div>App engagement</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--moss)"></div>Wellbeing score</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--sand)"></div>Future weeks</div>
+          </div>
+        </div>
+
+        <!-- Correlation -->
+        <div class="correlation-card" style="margin-bottom:16px;">
+          <div class="corr-title">Emerging Correlation</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <div class="corr-stat">+0.73</div>
+              <div class="corr-label">Engagement ↔ Wellbeing<br>Pearson r (weeks 1–3)</div>
+            </div>
+            <div>
+              <div class="corr-stat">−0.61</div>
+              <div class="corr-label">Masking load ↔ Sleep<br>Pearson r (weeks 1–3)</div>
+            </div>
+          </div>
+          <div class="corr-insight">
+            Your biometric data shows that on weeks when your app check-in score is above 7, your self-provided resting heart rate is on average 4 bpm lower. Heavy masking days are also consistently followed by 45–60 min less sleep. <em>These are personal patterns — not medical findings.</em>
+          </div>
+        </div>
+
+        <!-- Wellbeing before/after -->
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div class="chart-title">Gallup Wellbeing-5 · Baseline vs. Week 3</div>
+          <div class="chart-sub">Self-reported wellbeing across 5 life dimensions</div>
+          <div class="wellbeing-bars">
+            <div class="wb-row">
+              <div class="wb-icon">💼</div>
+              <div class="wb-label">Career</div>
+              <div class="wb-bar-track">
+                <div class="wb-bar-before" style="width:60%"></div>
+                <div class="wb-bar-after" style="width:72%"></div>
+              </div>
+              <div class="wb-score">7.2</div>
+            </div>
+            <div class="wb-row">
+              <div class="wb-icon">👥</div>
+              <div class="wb-label">Social</div>
+              <div class="wb-bar-track">
+                <div class="wb-bar-before" style="width:70%"></div>
+                <div class="wb-bar-after" style="width:75%"></div>
+              </div>
+              <div class="wb-score">7.5</div>
+            </div>
+            <div class="wb-row">
+              <div class="wb-icon">💪</div>
+              <div class="wb-label">Physical</div>
+              <div class="wb-bar-track">
+                <div class="wb-bar-before" style="width:50%"></div>
+                <div class="wb-bar-after" style="width:60%"></div>
+              </div>
+              <div class="wb-score">6.0</div>
+            </div>
+            <div class="wb-row">
+              <div class="wb-icon">🏘️</div>
+              <div class="wb-label">Community</div>
+              <div class="wb-bar-track">
+                <div class="wb-bar-before" style="width:55%"></div>
+                <div class="wb-bar-after" style="width:64%"></div>
+              </div>
+              <div class="wb-score">6.4</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:14px;font-size:11px;color:rgba(28,25,23,0.5);">
+            <div style="display:flex;align-items:center;gap:5px;"><div style="width:12px;height:6px;border-radius:3px;background:rgba(28,25,23,0.15)"></div>Baseline</div>
+            <div style="display:flex;align-items:center;gap:5px;"><div style="width:12px;height:6px;border-radius:3px;background:var(--moss)"></div>Week 3</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── HEALTH DATA SCREEN ── -->
+    <div class="screen" id="screen-health">
+      <div style="padding:40px 36px 0;">
+        <div class="health-title">Health Data</div>
+        <div class="health-sub">Connect your own device — you control exactly what you share</div>
+      </div>
+      <div style="padding:20px 36px 80px; display:flex; flex-direction:column; gap:0;">
+
+        <div class="form-section" style="margin-bottom:16px;">
+          <div class="form-section-title">What device do you use?</div>
+          <div class="form-section-sub">We support any general wellness wearable. No account linking — you export the numbers yourself.</div>
+          <div class="device-grid">
+            <div class="device-card selected" onclick="selectDevice(this)">
+              <div class="device-emoji">⌚</div>
+              <div class="device-name">Apple Watch</div>
+              <div class="device-brand">APPLE HEALTH</div>
+            </div>
+            <div class="device-card" onclick="selectDevice(this)">
+              <div class="device-emoji">📿</div>
+              <div class="device-name">Fitbit</div>
+              <div class="device-brand">FITBIT APP</div>
+            </div>
+            <div class="device-card" onclick="selectDevice(this)">
+              <div class="device-emoji">🏃</div>
+              <div class="device-name">Garmin</div>
+              <div class="device-brand">GARMIN CONNECT</div>
+            </div>
+            <div class="device-card" onclick="selectDevice(this)">
+              <div class="device-emoji">🔵</div>
+              <div class="device-name">Samsung Galaxy</div>
+              <div class="device-brand">SAMSUNG HEALTH</div>
+            </div>
+            <div class="device-card" onclick="selectDevice(this)">
+              <div class="device-emoji">💍</div>
+              <div class="device-name">Oura Ring</div>
+              <div class="device-brand">OURA APP</div>
+            </div>
+            <div class="device-card" onclick="selectDevice(this)">
+              <div class="device-emoji">📊</div>
+              <div class="device-name">Other / Manual</div>
+              <div class="device-brand">ENTER MANUALLY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 weekly numbers -->
+        <div class="form-section" style="margin-bottom:16px;">
+          <div class="form-section-title">This Week's Numbers (Week 3)</div>
+          <div class="form-section-sub">Open your device's health app, find the weekly average, and enter just these 4 numbers. That's it.</div>
+          <div class="health-input-grid">
+            <div class="health-input-card">
+              <div class="h-icon">❤️</div>
+              <div class="h-label">Resting Heart Rate</div>
+              <div class="h-sublabel">Weekly average (bpm)</div>
+              <input type="number" class="h-input" id="rhr-input" value="64" min="30" max="120">
+            </div>
+            <div class="health-input-card">
+              <div class="h-icon">😴</div>
+              <div class="h-label">Sleep Duration</div>
+              <div class="h-sublabel">Weekly average (hours)</div>
+              <input type="number" class="h-input" id="sleep-input" value="6.8" min="0" max="16" step="0.1">
+            </div>
+            <div class="health-input-card">
+              <div class="h-icon">👟</div>
+              <div class="h-label">Daily Steps</div>
+              <div class="h-sublabel">Weekly average</div>
+              <input type="number" class="h-input" id="steps-input" value="7200" min="0" max="50000">
+            </div>
+            <div class="health-input-card">
+              <div class="h-icon">⚡</div>
+              <div class="h-label">Active Minutes</div>
+              <div class="h-sublabel">Daily average (min)</div>
+              <input type="number" class="h-input" id="active-input" value="32" min="0" max="300">
+            </div>
+          </div>
+        </div>
+
+        <div class="privacy-box" style="margin-bottom:16px;">
+          <strong>🔒 Your data stays yours — always.</strong>
+          You are entering numbers you choose to share. No device is linked, no account is accessed. Your study ID (never your name) is the only identifier attached to this data. You may skip any week. You may withdraw at any time and your data will be deleted within 30 days. Per IRB Protocol #2025-0084, this data is stored de-identified in Sensory Bridges' research database.
+        </div>
+
+        <button class="sync-btn" onclick="syncHealthData()" style="background: var(--ink);">Submit This Week's Data → +50 XP</button>
+
+        <div class="airtable-status" id="airtable-status" style="display: flex;">
+          <div class="dot"></div>
+          De-identified data synced to research database · Study H · Week 3
+        </div>
+        <div class="irb-notice">
+          IRB #2025-0084 · 45 C.F.R. Part 46 · Data shared under FERPA § 99.35 audit/evaluation exception · Not HIPAA-covered · General Wellness Device per FDA Revised Guidance Jan 6, 2026 · IP Assignment Agreement required before research participation · Sensory Bridges, Inc. owns all derived research models
+        </div>
+
+      </div>
+    </div>
+
+  </main><!-- /main -->
+</div><!-- /app-shell -->
+
+<!-- ═══════════ BOTTOM NAV (mobile) ═══════════ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bn-item active" onclick="showScreen(&#39;dashboard&#39;)">
+    <div class="bn-icon">🏠</div>
+    <div class="bn-label">Home</div>
+  </div>
+  <div class="bn-item" onclick="showScreen(&#39;checkin&#39;)">
+    <div class="bn-icon">✍️</div>
+    <div class="bn-label">Check-in</div>
+  </div>
+  <div class="bn-item" onclick="showScreen(&#39;progress&#39;)">
+    <div class="bn-icon">📈</div>
+    <div class="bn-label">Patterns</div>
+  </div>
+  <div class="bn-item" onclick="showScreen(&#39;health&#39;)">
+    <div class="bn-icon">⌚</div>
+    <div class="bn-label">Health</div>
+  </div>
+  <div class="bn-item" onclick="showScreen(&#39;avatar&#39;)">
+    <div class="bn-icon">🌱</div>
+    <div class="bn-label">Avatar</div>
+  </div>
+</nav>
+
+<script>
+// ═══════════════ STATE ═══════════════
+const state = {
+  userName: '',
+  avatarEmoji: '🌱',
+  avatarColor: 'rgba(217,95,43,0.3), rgba(28,25,23,0.8)',
+  xp: 75,
+  week: 3,
+  studyId: 'SH-' + Math.random().toString(36).substr(2,8).toUpperCase()
+};
+
+// ═══════════════ NAVIGATION ═══════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.bn-item').forEach(n => n.classList.remove('active'));
+
+  document.getElementById('screen-' + name).classList.add('active');
+
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+
+  // Update bottom nav
+  const bnItems = document.querySelectorAll('.bn-item');
+  const screens = ['dashboard','checkin','progress','health','avatar'];
+  const idx = screens.indexOf(name);
+  if (idx >= 0 && bnItems[idx]) bnItems[idx].classList.add('active');
+
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════ AVATAR BUILDER ═══════════════
+function updateAvatarName(val) {
+  state.userName = val || 'Your Avatar';
+  document.getElementById('avatar-name-live').textContent = val || 'Your Avatar';
+}
+
+function selectEmoji(el, emoji) {
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.avatarEmoji = emoji;
+  document.getElementById('avatar-emoji-display').textContent = emoji;
+  document.getElementById('dash-avatar-emoji').textContent = emoji;
+  document.getElementById('sidebar-avatar-emoji').textContent = emoji;
+}
+
+function selectColor(el, gradient) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.avatarColor = gradient;
+  const bg = `radial-gradient(circle, ${gradient})`;
+  document.getElementById('avatar-display').style.background = bg;
+  document.getElementById('dash-avatar-emoji').style.background = bg;
+  document.getElementById('sidebar-avatar-emoji').style.background = bg.replace('radial-gradient','linear-gradient').replace('circle','135deg');
+}
+
+function togglePill(el) {
+  const selected = document.querySelectorAll('.strength-pill.selected');
+  if (!el.classList.contains('selected') && selected.length >= 5) {
+    el.style.animation = 'shake 0.3s ease';
+    setTimeout(() => el.style.animation = '', 300);
+    return;
+  }
+  el.classList.toggle('selected');
+}
+
+function selectGoal(el) {
+  document.querySelectorAll('.goal-card').forEach(g => g.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function finishAvatar() {
+  const name = document.getElementById('user-name-input').value || 'Explorer';
+  state.userName = name;
+  state.xp += 50; // XP for completing avatar
+
+  // Update dashboard
+  document.getElementById('dash-user-name').textContent = 'Good morning, ' + name + ' 🔥';
+  document.getElementById('sidebar-avatar-name').textContent = name + "'s Avatar";
+  document.getElementById('dash-avatar-emoji').textContent = state.avatarEmoji;
+
+  showXpToast('🌱 Avatar Created! +50 XP');
+  setTimeout(() => showScreen('dashboard'), 800);
+}
+
+// ═══════════════ CHECK-IN INTERACTIONS ═══════════════
+function selectEnergy(el) {
+  document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleTag(el) { el.classList.toggle('selected'); }
+function selectMasking(el) {
+  document.querySelectorAll('.masking-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function updateReadinessSlider(el) {
+  const pct = (el.value / el.max) * 100;
+  el.style.background = `linear-gradient(to right, var(--ember) ${pct}%, var(--sand) ${pct}%)`;
+}
+
+function submitCheckin() {
+  state.xp += 30;
+  updateXP();
+  showXpToast('🔥 +30 XP — Pattern Recorded');
+
+  // Animate capacity bar shift
+  const bar = document.getElementById('capacity-bar');
+  if (bar) {
+    const current = parseFloat(bar.style.width) || 62;
+    bar.style.width = Math.min(current + 5, 92) + '%';
+  }
+
+  setTimeout(() => showScreen('dashboard'), 700);
+}
+
+// ═══════════════ HEALTH DATA ═══════════════
+function selectDevice(el) {
+  document.querySelectorAll('.device-card').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function syncHealthData() {
+  const rhr = document.getElementById('rhr-input').value;
+  const sleep = document.getElementById('sleep-input').value;
+  const steps = document.getElementById('steps-input').value;
+  const active = document.getElementById('active-input').value;
+
+  if (!rhr || !sleep || !steps || !active) {
+    alert('Please enter all 4 values before submitting.');
+    return;
+  }
+
+  // Show syncing state
+  const btn = document.querySelector('.sync-btn');
+  btn.textContent = 'Syncing...';
+  btn.disabled = true;
+
+  // Simulate Airtable sync (in production, this calls the API)
+  setTimeout(() => {
+    btn.textContent = '✓ Submitted — +50 XP';
+    btn.style.background = 'var(--moss)';
+    document.getElementById('airtable-status').style.display = 'flex';
+
+    state.xp += 50;
+    updateXP();
+    showXpToast('⌚ +50 XP — Health Data Synced');
+
+    // Reset button after 3s
+    setTimeout(() => {
+      btn.textContent = 'Submit This Week\'s Data → +50 XP';
+      btn.disabled = false;
+      btn.style.background = 'var(--ink)';
+    }, 3000);
+  }, 1200);
+}
+
+// ═══════════════ XP SYSTEM ═══════════════
+function updateXP() {
+  const stages = [
+    { name: '🌱 Seed', emoji: '🌱', max: 200 },
+    { name: '🌿 Sprout', emoji: '🌿', max: 500 },
+    { name: '🌸 Bloom', emoji: '🌸', max: 1000 },
+    { name: '🌻 Champion', emoji: '🌻', max: 1800 },
+    { name: '🌳 Graduate', emoji: '🌳', max: Infinity }
+  ];
+
+  let stageIdx = 0;
+  let cumulative = 0;
+  for (let i = 0; i < stages.length; i++) {
+    if (state.xp < cumulative + stages[i].max) {
+      stageIdx = i;
+      break;
+    }
+    cumulative += stages[i].max;
+  }
+  const stage = stages[stageIdx];
+  const xpInStage = state.xp - cumulative;
+  const pct = Math.min((xpInStage / stage.max) * 100, 100);
+
+  // Update avatar if stage changed
+  if (stageIdx > 0 && !['🌱','🌊','🌙','⚡','🌀','🔥'].includes(state.avatarEmoji)) {
+    // keep user emoji
+  } else if (stageIdx === 1 && state.avatarEmoji === '🌱') {
+    state.avatarEmoji = '🌿';
+  } else if (stageIdx === 2 && state.avatarEmoji === '🌿') {
+    state.avatarEmoji = '🌸';
+  }
+
+  // Update UI
+  document.getElementById('dash-stage-badge').textContent = stage.name;
+  document.getElementById('dash-xp-text').textContent = `${state.xp} XP · ${stage.name}`;
+  document.getElementById('dash-xp-fill').style.width = pct + '%';
+  document.getElementById('sidebar-avatar-stage').textContent = `${stage.name} · ${state.xp} XP`;
+
+  // Update builder XP bar
+  const builderXP = document.getElementById('builder-xp');
+  if (builderXP) builderXP.style.width = pct + '%';
+}
+
+function showXpToast(msg) {
+  const toast = document.getElementById('xp-toast');
+  toast.textContent = msg || '🔥 +XP earned';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ═══════════════ INIT ═══════════════
+updateXP();
+document.getElementById('readiness-slider') && (document.getElementById('readiness-slider').oninput)
+  && document.getElementById('readiness-slider').dispatchEvent(new Event('input'));
+</script>
+
+
+</body></html>
